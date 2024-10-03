@@ -46,6 +46,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.fordiac.ide.model.NameRepository;
+import org.eclipse.fordiac.ide.model.data.DataType;
 import org.eclipse.fordiac.ide.model.libraryElement.AutomationSystem;
 import org.eclipse.fordiac.ide.model.libraryElement.LibraryElement;
 import org.eclipse.fordiac.ide.model.typelibrary.TypeEntry;
@@ -196,6 +197,7 @@ public class FordiacResourceChangeListener implements IResourceChangeListener {
 	}
 
 	private boolean handleResourceMovedFrom(final IResourceDelta delta) {
+
 		final IProject project = delta.getResource().getProject();
 		if (!TypeLibraryManager.INSTANCE.hasTypeLibrary(project)) {
 			return false;
@@ -263,10 +265,33 @@ public class FordiacResourceChangeListener implements IResourceChangeListener {
 		if (!TypeLibraryManager.INSTANCE.hasTypeLibrary(file.getProject())) {
 			return;
 		}
+		System.out.println(TypeLibraryManager.INSTANCE.getTypeLibrary(file.getProject()));
+		System.out.println();
+		TypeLibraryManager.INSTANCE.getTypeLibrary(file.getProject()).getDataTypeLibrary().getDataTypes().stream()
+				.map(DataType::getName).forEach(x -> System.out.println(x));
+
+		TypeLibraryManager.INSTANCE.getTypeLibrary(file.getProject()).getDataTypeLibrary().getDataTypes().stream()
+				.map(DataType::getName).forEach(x -> {
+					if (x.equals(removeFileExtension(file.getName()))) {
+						System.out.println("equals");
+					} else {
+						System.out.println("not equal");
+					}
+				});
+
+		// .stream().map(DataType::getName).toList().toString());
+		System.out.println(removeFileExtension(file.getName()));
+
+		if (TypeLibraryManager.INSTANCE.getTypeLibrary(file.getProject()).getDataTypeLibrary().getDataTypes().stream()
+				.map(DataType::getName).toList().contains(removeFileExtension(file.getName()))) {
+			System.out.println("contains");
+		} else {
+			System.out.println("Does not contain");
+		}
 		if (file.getProject().isOpen() && delta.getFlags() != IResourceDelta.MARKERS) {
 			final TypeLibrary typeLib = TypeLibraryManager.INSTANCE.getTypeLibrary(file.getProject());
 			final TypeEntry typeEntryForFile = TypeLibraryManager.INSTANCE.getTypeEntryForFile(file);
-
+			// System.out.println(typeLib.getDataTypeLibrary().getDataTypes().tos);
 			if (null == typeEntryForFile) {
 				final TypeEntry entry = typeLib.createTypeEntry(file);
 				if (null != entry && containedTypeNameIsDifferent(file)) {
@@ -291,6 +316,19 @@ public class FordiacResourceChangeListener implements IResourceChangeListener {
 				filesToRename.add(new FileToRenameEntry(file, typeEntryForFile));
 			}
 		}
+	}
+
+	public static String removeFileExtension(final String fileName) {
+		if (fileName == null || fileName.isEmpty()) {
+			return fileName;
+		}
+
+		final int dotIndex = fileName.lastIndexOf('.'); // Finde den letzten Punkt im Dateinamen
+		if (dotIndex != -1) {
+			return fileName.substring(0, dotIndex); // Schneide alles nach dem Punkt ab
+		}
+
+		return fileName; // Falls kein Punkt vorhanden ist, gib den Originalnamen zurück
 	}
 
 	private static void openRenameDialog(final IFile file, final TypeEntry entry) {
