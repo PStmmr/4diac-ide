@@ -17,30 +17,22 @@ import java.util.Set;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.fordiac.ide.model.commands.ScopedCommand;
-import org.eclipse.fordiac.ide.model.libraryElement.IInterfaceElement;
 import org.eclipse.fordiac.ide.model.libraryElement.VarDeclaration;
 import org.eclipse.gef.commands.Command;
 
 public class HideInOutPinCommand extends Command implements ScopedCommand {
 
-	private final IInterfaceElement interfaceElement;
+	private final VarDeclaration inputVarInOut;
 	private final boolean visible;
-	private final boolean isInput;
 
-	public HideInOutPinCommand(final IInterfaceElement inputVarInOut, final boolean visible, final boolean isInput) {
-		this.interfaceElement = Objects.requireNonNull(inputVarInOut);
-//
-//		final VarDeclaration output = inputVarInOut.getInOutVarOpposite();
-//
-//		((InterfaceList)interfaceElement.eContainer()).get
-
+	public HideInOutPinCommand(final VarDeclaration inputVarInOut, final boolean visible) {
+		this.inputVarInOut = Objects.requireNonNull(inputVarInOut);
 		this.visible = visible;
-		this.isInput = isInput;
 	}
 
 	@Override
 	public void execute() {
-		getPin(isInput).setVisible(visible);
+		inputVarInOut.setVisible(visible);
 	}
 
 	@Override
@@ -50,27 +42,17 @@ public class HideInOutPinCommand extends Command implements ScopedCommand {
 
 	@Override
 	public void undo() {
-		getPin(isInput).setVisible(!visible);
+		inputVarInOut.setVisible(!visible);
 	}
 
 	@Override
 	public boolean canExecute() {
-		return (interfaceElement instanceof final VarDeclaration varDecl && varDecl.isInOutVar()
-				&& interfaceElement.getInputConnections().isEmpty()
-				&& interfaceElement.getOutputConnections().isEmpty());
+		return (inputVarInOut.isInOutVar() && inputVarInOut.getInputConnections().isEmpty()
+				&& inputVarInOut.getOutputConnections().isEmpty());
 	}
 
 	@Override
 	public Set<EObject> getAffectedObjects() {
-		return Set.of(getPin(isInput));
-	}
-
-	private VarDeclaration getPin(final boolean isInput) {
-		if (isInput) {
-			return interfaceElement.getFBNetworkElement().getInterface().getInOutVars().stream()
-					.filter(x -> x.getName().equals(Objects.toString(interfaceElement.getName()))).toList().getFirst();
-		}
-		return interfaceElement.getFBNetworkElement().getInterface().getOutMappedInOutVars().stream()
-				.filter(x -> x.getName().equals(Objects.toString(interfaceElement.getName()))).toList().getFirst();
+		return Set.of(inputVarInOut);
 	}
 }

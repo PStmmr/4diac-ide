@@ -421,6 +421,7 @@ public abstract class CommonElementImporter {
 
 		final AttributeDeclaration internalAttributeDecl = InternalAttributeDeclarations
 				.getInternalAttributeByName(attribute.getName());
+		System.out.println(internalAttributeDecl);
 		if (internalAttributeDecl != null) {
 			// Internal Attributes
 			attribute.setAttributeDeclaration(internalAttributeDecl);
@@ -456,7 +457,6 @@ public abstract class CommonElementImporter {
 			value = readCDataSection();
 		}
 		attribute.setValue(value);
-
 		confObject.getAttributes().add(attribute);
 	}
 

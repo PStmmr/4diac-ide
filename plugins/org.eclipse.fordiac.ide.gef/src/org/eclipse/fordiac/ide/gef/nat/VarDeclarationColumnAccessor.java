@@ -66,8 +66,8 @@ public class VarDeclarationColumnAccessor extends AbstractColumnAccessor<VarDecl
 
 	@SuppressWarnings("boxing")
 	private static boolean handleInOutCheck(final VarDeclaration rowObject, final VarDeclarationTableColumn column) {
-		final IInterfaceElement ie = getPin(rowObject, column);
-		return ie.isVisible();
+		final IInterfaceElement vD = getPin(rowObject, column);
+		return vD.isVisible();
 
 	}
 
@@ -100,18 +100,15 @@ public class VarDeclarationColumnAccessor extends AbstractColumnAccessor<VarDecl
 
 	private static Command handleInOut(final VarDeclaration rowObject, final VarDeclarationTableColumn column,
 			final Object newValue) {
-		final IInterfaceElement ie = getPin(rowObject, column);
-		return new HideInOutPinCommand(ie, Boolean.parseBoolean(Objects.toString(newValue, NULL_DEFAULT)),
-				column.equals(VarDeclarationTableColumn.VISIBLEIN) ? true : false);
+		final VarDeclaration vD = getPin(rowObject, column);
+		return new HideInOutPinCommand(vD, Boolean.parseBoolean(Objects.toString(newValue, NULL_DEFAULT)));
 	}
 
-	private static IInterfaceElement getPin(final VarDeclaration rowObject, final VarDeclarationTableColumn column) {
+	private static VarDeclaration getPin(final VarDeclaration rowObject, final VarDeclarationTableColumn column) {
 		if (column.equals(VarDeclarationTableColumn.VISIBLEIN)) {
-			return rowObject.getFBNetworkElement().getInterface().getInOutVars().stream()
-					.filter(x -> x.getName().equals(Objects.toString(rowObject.getName()))).toList().getFirst();
+			return rowObject;
 		}
-		return rowObject.getFBNetworkElement().getInterface().getOutMappedInOutVars().stream()
-				.filter(x -> x.getName().equals(Objects.toString(rowObject.getName()))).toList().getFirst();
+		return rowObject.getInOutVarOpposite();
 	}
 
 	protected static String getInitialValue(final VarDeclaration rowObject) {
