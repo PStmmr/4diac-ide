@@ -53,7 +53,6 @@ public class EditUntypedSubappVarInOutSection extends AbstractEditVarInOutSectio
 		}
 	}
 
-
 	@Override
 	public void setupInputTable(final Composite parent) {
 		inputProvider = new ChangeableListDataProvider<>(new VarDeclarationColumnAccessor(this,
